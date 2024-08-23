@@ -1,100 +1,55 @@
 # Password-Generator
-import sys
+import random
+from tkinter import messagebox
+from tkinter import *
 
-from PyQt5.QtCore import QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-#                                 Web Browser (HTML Frame)
-from PyQt5.QtWidgets import *
-
-class Window(QMainWindow):
-	def __init__(self, *args, **kwargs):
-		super(Window, self).__init__(*args, **kwargs)
-		self.browser = QWebEngineView()
-		self.browser.setUrl(QUrl('https://www.google.com'))
-		self.browser.urlChanged.connect(self.update_AddressBar)
-		self.setCentralWidget(self.browser)
-		self.status_bar = QStatusBar()
-		self.setStatusBar(self.status_bar)
-
-		self.navigation_bar = QToolBar('Navigation Toolbar')
-		self.addToolBar(self.navigation_bar)
-
-		back_button = QAction("Back", self)
-		back_button.setStatusTip('Go to previous page you visited')
-		back_button.triggered.connect(self.browser.back)
-		self.navigation_bar.addAction(back_button)
-
-		refresh_button = QAction("Refresh", self)
-		refresh_button.setStatusTip('Refresh this page')
-		refresh_button.triggered.connect(self.browser.reload)
-		self.navigation_bar.addAction(refresh_button)
-
-		next_button = QAction("Next", self)
-		next_button.setStatusTip('Go to next page')
-		next_button.triggered.connect(self.browser.forward)
-		self.navigation_bar.addAction(next_button)
-
-		home_button = QAction("Home", self)
-		home_button.setStatusTip('Go to home page (Google page)')
-		home_button.triggered.connect(self.go_to_home)
-		self.navigation_bar.addAction(home_button)
-
-		self.navigation_bar.addSeparator()
-
-		self.URLBar = QLineEdit()
-		self.URLBar.returnPressed.connect(lambda: self.go_to_URL(QUrl(self.URLBar.text())))  # This specifies what to do when enter is pressed in the Entry field
-		self.navigation_bar.addWidget(self.URLBar)
-
-		self.addToolBarBreak()
-
-		# Adding another toolbar which contains the bookmarks
-		bookmarks_toolbar = QToolBar('Bookmarks', self)
-		self.addToolBar(bookmarks_toolbar)
-
-		pythongeeks = QAction("PythonGeeks", self)
-		pythongeeks.setStatusTip("Go to PythonGeeks website")
-		pythongeeks.triggered.connect(lambda: self.go_to_URL(QUrl("https://pythongeeks.org")))
-		bookmarks_toolbar.addAction(pythongeeks)
-
-		facebook = QAction("Facebook", self)
-		facebook.setStatusTip("Go to Facebook")
-		facebook.triggered.connect(lambda: self.go_to_URL(QUrl("https://www.facebook.com")))
-		bookmarks_toolbar.addAction(facebook)
-
-		linkedin = QAction("LinkedIn", self)
-		linkedin.setStatusTip("Go to LinkedIn")
-		linkedin.triggered.connect(lambda: self.go_to_URL(QUrl("https://in.linkedin.com")))
-		bookmarks_toolbar.addAction(linkedin)
-
-		instagram = QAction("Instagram", self)
-		instagram.setStatusTip("Go to Instagram")
-		instagram.triggered.connect(lambda: self.go_to_URL(QUrl("https://www.instagram.com")))
-		bookmarks_toolbar.addAction(instagram)
-
-		twitter = QAction("Twitter", self)
-		twitter.setStatusTip('Go to Twitter')
-		twitter.triggered.connect(lambda: self.go_to_URL(QUrl("https://www.twitter.com")))
-		bookmarks_toolbar.addAction(twitter)
-
-		self.browser.maximumSize()
-		self.show()
-
-	def go_to_home(self):
-		self.browser.setUrl(QUrl('https://www.google.com/'))
-
-	def go_to_URL(self, url: QUrl):
-		if url.scheme() == '':
-			url.setScheme('https://')
-		self.browser.setUrl(url)
-		self.update_AddressBar(url)
-
-	def update_AddressBar(self, url):
-		self.URLBar.setText(url.toString())
-		self.URLBar.setCursorPosition(0)
+def generate_password():
+  try:
+    repeat = int(repeat_entry.get())
+    length = int(length_entry.get())
+  except:
+    messagebox.showerror(message="Please key in the required inputs")
+    return
+ 
+  if repeat == 1:
+    password = random.sample(character_string,length)
+  else:
+    password = random.choices(character_string,k=length)
+  #Since the returned value is a list, we convert to a sting using join
+  password=''.join(password)
+  #Declare a string variable
+  password_v = StringVar()
+  password="Created password: "+str(password)
+  #Assign the password to the declared string variables
+  password_v.set(password)
+  #Create a read only entry box to view the output, position using place
+  password_label = Entry(password_gen, bd=0, bg="gray85", textvariable=password_v, state="readonly")
+  password_label.place(x=10, y=140, height=50, width=320)
 
 
-app = QApplication(sys.argv)
-app.setApplicationName('PythonGeeks Web Browser')
+character_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
 
-window = Window()
-app.exec_()
+
+password_gen  = Tk()
+password_gen.geometry("350x200")
+password_gen.title("PythonGeeks Password Generator")
+
+
+title_label = Label(password_gen, text="PythonGeeks Password Generator", font=('Ubuntu Mono',12))
+title_label.pack()
+
+
+length_label = Label(password_gen, text="Enter length of password: ")
+length_label.place(x=20,y=30)
+length_entry = Entry(password_gen, width=3)
+length_entry.place(x=190,y=30)
+
+repeat_label = Label(password_gen, text="Repetition? 1: no repetition, 2: otherwise: ")
+repeat_label.place(x=20,y=60)
+repeat_entry = Entry(password_gen, width=3)
+repeat_entry.place(x=300,y=60)
+
+password_button = Button(password_gen, text="Generate Password", command=generate_password)
+password_button.place(x=100,y=100)
+
+password_gen.mainloop()
